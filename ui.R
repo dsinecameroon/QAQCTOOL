@@ -244,7 +244,7 @@ ui <- fluidPage(
     # column(2, radioButtons("data_mode", "Data Load:", choices = c("Online"=1, "Offline"=0), inline = TRUE)),
     # column(2, radioButtons("show_fu_tabs", "Follow-Up On", choices = c("No"=0, "Yes"=1), selected = 0, inline = TRUE)),
     column(2, actionButton("load_record", "Load Record"),actionButton("prev_id", "◀ Previous"), actionButton("next_id", "Next ▶")),
-    column(2, actionButton("submit", "Update Record", class = "btn-primary"))
+    column(2, actionButton("submit", "Review Record", class = "btn-primary"))
   ),
 
   fluidRow(
@@ -1635,9 +1635,11 @@ ui <- fluidPage(
              tabPanel("Patient PDF",
                       uiOutput("pdf_viewer", style = "width: 100%; height: 200vh;")
              ),
-             tabPanel("Review Record",
+             tabPanel("Updated Data",
                       div(style = "overflow-x: auto; width: 100%;",
-                          DT::dataTableOutput("df_preview")
+                          DT::dataTableOutput("df_preview"),
+                          actionButton("update", "Push to RedCap", class = "btn-primary")
+
                       )
 
              )

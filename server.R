@@ -35,13 +35,13 @@ server <- function(input, output, session) {
                      "xlsx" = read_excel(input$upload_ids$datapath),
                      "xls"  = read_excel(input$upload_ids$datapath),
                      {
-                       showNotification("Unsupported file format", type = "error")
+                       showNotification("Unsupported file format", type = "error", duration = 10)
                        return(NULL)
                      }
     )
 
     if (!"unique_ctr_id" %in% names(df_ids)) {
-      showNotification("Missing 'unique_ctr_id' column", type = "error")
+      showNotification("Missing 'unique_ctr_id' column", type = "error", duration = 10)
       return(NULL)
     }
 
@@ -68,7 +68,7 @@ server <- function(input, output, session) {
     sorted_ids(ids) # Assigning ids
 
 
-    showNotification("REDCap records loaded successfully", type = "message")
+    showNotification("REDCap records loaded successfully", type = "message", duration = 10)
   })
 
 
@@ -92,7 +92,7 @@ server <- function(input, output, session) {
       shinyjs::enable("prev_id")
     } else {
       shinyjs::disable("next_id")
-      showNotification("Already at last record", type = "warning")
+      showNotification("Already at last record", type = "warning", duration = 10)
     }
   })
 
@@ -129,7 +129,7 @@ server <- function(input, output, session) {
       shinyjs::enable("next_id")
     } else {
       shinyjs::disable("prev_id")
-      showNotification("Already on the first record", type = "warning")
+      showNotification("Already on the first record", type = "warning", duration = 10)
     }
   })
 
@@ -145,7 +145,7 @@ server <- function(input, output, session) {
     df_load_selected(df) ## Loading selected record
 
     if (nrow(df) == 0) {
-      showNotification("Selected ID not found in loaded REDCap dataset", type = "error")
+      showNotification("Selected ID not found in loaded REDCap dataset", type = "error", duration = 10)
       return()
     }
 
@@ -221,7 +221,7 @@ server <- function(input, output, session) {
 
   df_orig_filtered <- reactiveVal()
 
-###########
+########### Collect user input
   observeEvent(input$submit, {
     df <- df_load()
     req(df, input$select_ctr_id)
@@ -314,14 +314,16 @@ server <- function(input, output, session) {
       df_new(input_df)
       df_orig_filtered(old_row)
       updated_fields(diff_indices)
-      showNotification("Form submitted!", type = "message")
+      showNotification("Form submitted!", type = "message", duration = 10)
     } else {
-      showNotification("No changes detected.", type = "warning")
+      showNotification("No changes detected.", type = "warning", duration = 10)
     }
   })
 
 
-##############
+############## Compare Verification Input to Original and Render Data table
+  data4redcap <-reactiveVal()
+
   output$df_preview <- DT::renderDataTable({
 
     req(df_orig_filtered(), df_new(), updated_fields())
@@ -353,6 +355,9 @@ server <- function(input, output, session) {
     # print(names(mod))
 
     mod <- tibble::as_tibble(mod)
+
+    data4redcap(mod) # Saving to reactive object
+
     # orig <- mod[indices[,1], c(which(names(mod) %in% c("record_id", "unique_ctr_id")),unique(indices[,2]))]
 
 
@@ -405,5 +410,33 @@ server <- function(input, output, session) {
     dt
   })
 
+######## Updated Record in Redcap
+
+  observeEvent(input$update, {
+    df <- data4redcap()
+    req(df, input$select_ctr_id)
+
+    # Use withCallingHandlers to catch 'message' signals
+    withCallingHandlers(
+      tryCatch({
+        ctrdata::rc_update_records(df)
+      }, error = function(e) {
+        # Handle 'stop()' calls from your function
+        showNotification(
+          paste("Error:", e$message),
+          type = "error",
+          duration = 10
+        )
+      }),
+      message = function(m) {
+        # Handle 'message()' calls from your function
+        showNotification(
+          m$message,
+          type = "message",
+          duration = 5
+        )
+      }
+    )
+  })
 
 }
