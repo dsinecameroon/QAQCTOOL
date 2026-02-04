@@ -235,7 +235,7 @@ ui <- fluidPage(
     white-space:nowrap;}
   ")),
 
-  titlePanel("National Trauma Registry - Data Entry Form"),
+  titlePanel("Cameroon Trauma Registry - Data Verification Tool"),
 
   fluidRow(
     column(2, fileInput("upload_ids", "Upload Patient List (.csv or .xlsx)", accept = c(".csv", ".xlsx"))),
