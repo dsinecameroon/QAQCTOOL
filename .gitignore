@@ -1,0 +1,8 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+api/tokens/  # CRITICAL: Do not push your RDS tokens!
+www/
+deploy.R
