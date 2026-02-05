@@ -184,19 +184,36 @@ server <- function(input, output, session) {
 
     message("File path is", matching_pdf)
 
+    # Use full.names = TRUE to get the absolute path for R to find the file
+    pdf_files <- list.files(path = dir_path, pattern = "\\.pdf$", recursive = TRUE, full.names = TRUE)
+    matching_pdf <- pdf_files[grepl(input$select_ctr_id, pdf_files, ignore.case = TRUE)]
+
     if (length(matching_pdf) > 0) {
-      relative_pdf_path <- sub("^www", "", matching_pdf[1])
+      # 1. Get path relative to the app root
+      # This removes the absolute path prefix up to the 'www' folder
+      # We use 'www/' as the anchor
+      relative_path <- sub(".*www/", "", matching_pdf[1])
+
+      # 2. Linux Check: Remove any leading slashes left over
+      relative_path <- sub("^/+", "", relative_path)
+
+      # 3. CRITICAL: Encode spaces and special characters for the browser
+      # 'June 2025' becomes 'June%202025'
+      encoded_path <- URLencode(relative_path)
+
+      message("Log - Found PDF on Disk: ", matching_pdf[1])
+      message("Log - Sending to Browser: ", encoded_path)
+
       output$pdf_viewer <- renderUI({
         tags$iframe(
-          style = "height:200vh; width:100%; border:none;",
-          src = paste0(relative_pdf_path, "#view=FitH&toolbar=1&navpanes=0")
+          style = "height:100vh; width:100%; border:none;",
+          src = encoded_path # Shiny knows to look in 'www' automatically
         )
       })
     } else {
-
-      output$pdf_viewer <- renderUI({ tags$p("PDF not found.") })
+      output$pdf_viewer <- renderUI({ tags$p("PDF not found on Server.") })
     }
-  })
+    })
 
 
 
