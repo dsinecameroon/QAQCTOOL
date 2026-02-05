@@ -177,6 +177,7 @@ server <- function(input, output, session) {
     dir_path <- file.path(all_dirs[match_index[1]], year_collected)
     if (!dir.exists(dir_path)) return()
 
+    print(paste("Data path is ", dir_path))
     pdf_files <- list.files(path = dir_path, pattern = "\\.pdf$", recursive = TRUE, full.names = TRUE)
     matching_pdf <- pdf_files[grepl(input$select_ctr_id, pdf_files, ignore.case = TRUE)]
 
