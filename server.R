@@ -99,32 +99,15 @@ server <- function(input, output, session) {
   observeEvent(input$prev_id, {
     req(sorted_ids(), input$select_ctr_id)
 
-    df <- df_load()
-
-    changed_cols <- get_changed_cols(df, input, input$select_ctr_id)
-
-
-    # Updating df
-    if (length(changed_cols) > 0) {
-      idx <- which(df$unique_ctr_id == input$select_ctr_id)
-
-      lapply(changed_cols, \(x) print(input[[x]]))
-
-      # df[idx, changed_cols] <- lapply(changed_cols, \(x) input[[x]])
-
-      df_load(df)   # save back into reactiveVal
-    }
-
-
-    # ---- Move to previous record ----
+    ## Move to previous record
     ids <- sorted_ids()
-    idx2 <- which(ids == input$select_ctr_id)
+    idx <- which(ids == input$select_ctr_id)
 
-    if (idx2 > 1) {
+    if (idx > 1) {
       updateSelectInput(
         session,
         "select_ctr_id",
-        selected = ids[idx2 - 1]
+        selected = ids[idx - 1]
       )
       shinyjs::enable("next_id")
     } else {
