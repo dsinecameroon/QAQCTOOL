@@ -185,7 +185,7 @@ server <- function(input, output, session) {
     message("File path is", matching_pdf)
 
     if (length(matching_pdf) > 0) {
-      relative_pdf_path <- sub("^www/", "", matching_pdf[1])
+      relative_pdf_path <- sub("^www", "", matching_pdf[1])
       output$pdf_viewer <- renderUI({
         tags$iframe(
           style = "height:200vh; width:100%; border:none;",
