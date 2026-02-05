@@ -170,7 +170,7 @@ server <- function(input, output, session) {
     site_name <- map_list[[site_code]]
     if (is.null(site_name)) return()
 
-    all_dirs <- list.dirs("www/CTR Data/", recursive = FALSE)
+    all_dirs <- list.dirs("www/", recursive = FALSE)
     match_index <- which(stringr::str_detect(tolower(all_dirs), tolower(site_name)))
     if (length(match_index) == 0) return()
 
